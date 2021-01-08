@@ -605,7 +605,7 @@ FUNCTION {bst.url.post}
 
 % The string before access.
 FUNCTION {bst.access.pre}
-{ ", accessed on " } % (default)
+{ ", accessed " } % (default)
 
 % The string after access.
 FUNCTION {bst.access.post}
@@ -618,8 +618,8 @@ FUNCTION {bst.access.post}
 
 % Show or Hide DOI.  If non-zero, DOI is displayed. Otherwise, DOI is suppressed. 
 FUNCTION {bst.show.doi}
-%{ #1 }    % non-#0 -> Show DOI field (default)
- { #0 }    % #0 -> Not show DOI field.
+{ #1 }    % non-#0 -> Show DOI field (default)
+% { #0 }    % #0 -> Not show DOI field.
 
 % The string before DOI:
 %
@@ -642,8 +642,8 @@ FUNCTION {bst.doi.post.jp}
 %
 FUNCTION {bst.url.doi}
 %{ #0 }    % (default) -> Both fields are displayed
- { #1 }    % -> Only URL field is displayed
-% { #2 }    % -> Only DOI field is displayed 
+% { #1 }    % -> Only URL field is displayed
+ { #2 }    % -> Only DOI field is displayed 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Other functions:
@@ -734,7 +734,7 @@ ENTRY
     school series title type url volume year
 
     % Fields specific to econ.bst
-    order absorder
+    order absorder 
   }
 
   % Definition of entry variable.  The entry variable is a variable which has
@@ -763,7 +763,7 @@ ENTRY
 
 % sort.key$: key used for sorting entries.
 % It usually has the string of author - year - title - month.
-    
+
 
 %%% Declaration of variables:
 
@@ -1076,7 +1076,12 @@ FUNCTION {format.url}
 FUNCTION {format.doi}
 { doi empty$ bst.show.doi not or
     { "" }
-    { bst.doi.pre doi * bst.doi.post * }
+    { bst.doi.pre doi * bst.doi.post * 
+        access empty$
+             { "" * }
+             { bst.access.pre * access * bst.access.post * }
+          if$
+        }
   if$
 }
 
@@ -1396,6 +1401,8 @@ FUNCTION {format.title.sub}
   if$
 }
 
+
+
 %%% title
 FUNCTION {format.title}
 { title empty$
@@ -1404,6 +1411,9 @@ FUNCTION {format.title}
     { format.title.sub remove.irrelevant.period.comma }
   if$
 }
+
+
+
 
 %%% title for misc.
 FUNCTION {format.misc.title}
@@ -2431,31 +2441,32 @@ FUNCTION {unpublished}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     data
+FUNCTION {data}
 { output.bibitem
   format.authors "author" output.check.nocomma
   bst.year.position #0 =
     { format.year "year" output.check.nocomma }
     'skip$
   if$
-  format.datatitle "title" output.check.nocomma
+  format.title "title" output.check.nocomma
 
-  bst.datayear.position #0 = not
+  bst.year.position #0 = not
     { format.date remove.pre.comma output.nocomma }
     { month empty$
         'skip$
         { format.month remove.pre.comma output.nocomma }
       if$
     }
-  format.publisher output.nocomma
-  format.accessed output.nocomma
   if$
 
   format.url.doi output.nocomma
-    %format.note "note" output.check.nocomma
+
+  format.note "note" output.check.nocomma
   fin.entry
 }
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %  datapublished
+FUNCTION {datapublished}
  { output.bibitem
   format.authors "author" output.check.nocomma
   bst.year.position #0 =
@@ -2474,7 +2485,7 @@ FUNCTION {unpublished}
   if$
 
   format.url.doi output.nocomma
-   %format.note "note" output.check.nocomma
+   format.note "note" output.check.nocomma
   fin.entry
 } 
 
